@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+    #parent{
+        margin: 50px auto;
+        color: rgb(188, 186, 186);
+        text-align: center;
+        width: 450px;
+        box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+        height:650px;
+        background-color:black;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       
+    }
+
+
+    form{
+        text-align: center;
+        background-color: black;
+    }
+   
+
+    form>button:nth-child(1){
+        background-color: rgb(93, 93, 205);
+        color:white;
+        border: 1px solid  rgb(93, 93, 205);
+    }
+
+    input{
+        height:30px;
+        width:60%;
+    }
+    .home{
+        color:white;
+        font-size: 40px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    button{
+background-color: rgb(157, 190, 220);
+border: 1px solid rgb(148, 144, 144);
+color:rgb(32, 30, 30);
+width: 60%;
+    }
+
+    #con{
+        width:60%;
+        height: 30px;
+        font-size: 14px;
+        background-color: rgb(46, 93, 194);
+        color:white;
+        border: 1px solid rgb(55, 125, 55);
+      cursor: pointer;
+    }
+
+    #con:hover{
+        background-color: rgb(64, 86, 120);
+    }
+    #para{
+        font-size: 13px;
+        color: rgb(13, 135, 13);
+        font-weight: 500;
+    }
+ .yes{
+    text-decoration: none;
+    font-weight: bold;
+    color: rgb(80, 80, 246);
+ }
+ .account{
+    font-size: 25px;
+    color: rgb(131, 128, 128);
+ }
+
+ #mainParent{
+    width:100%;
+    height:auto;
+    display: flex;
+    justify-content: space-evenly;
+ }
+
+ #mainParent>div img{
+    width: 100%;
+    padding-top: 100px;
+ }
+ input{
+    margin: 10px 0px;
+ }
+ 
+    </style>
+</head>
+<body>
+    <div id="mainParent">
+        <div>
+            <div id="parent">
+                <h2>IMDB</h2>
+                <p class="account">Create Your Account</p>
+                <form id="form" method="post">
+                    <input placeholder="Enter Username" type="text" id="name">
+                    <input placeholder="Enter Email" type="text" id="email">
+                    <input placeholder="Enter Password" type="text" id="pass">
+                    
+                    <div id="para">
+                        <br>
+                     By joining, i agree to recieve emails from IMDB.
+                    </div>
+                    <br>
+                    <input id="con" type="submit" value="Submit"/>
+                    <p>or</p>
+                    <div>
+                        <span><ion-icon name="logo-google"></ion-icon></span>
+                        <button>Continue with Google</button><br>
+                    </div>
+                    <div>
+                        <span><ion-icon name="logo-windows"></ion-icon></span>
+                        <button>Continue with Windows</button><br>
+                    </div>
+                    <div>
+                        <span><ion-icon name="logo-apple"></ion-icon></span>
+                        <button>Continue with Apple</button><br>
+                    </div>
+                    <P>Already a member?
+                        <a href="login.html" class="yes">Sign in</a>
+                    </P>
+                </form>
+            </div>
+        </div>
+        <div>
+            <img src="https://id.tmetric.com/images/side_image_register.svg" alt="">
+          
+        </div>
+    </div>
+   
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
+<script>
+
+let registerbtn = document.querySelector("#form")
+registerbtn.addEventListener("submit",registeruser)
+
+async function registeruser(event){
+    try {
+       event.preventDefault()
+        let registerData = document.querySelectorAll("#form input")
+        let userobj={
+          name:form.name.value,
+          email:form.email.value,
+          pass:form.pass.value
+        }
+        console.log(userobj)
+        let registerUserdata = await fetch("http://localhost:5500/users/signup",{
+         method:"POST",
+         body:JSON.stringify(userobj),
+         headers:{
+            "Content-type":"application/json"
+         }
+        }) 
+        if(registerUserdata.ok){
+        alert("registered!!")
+        window.location.href="login.html"
+        }else{
+            alert("Something went wrong, Please try again!!")
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+</script>
