@@ -5,13 +5,10 @@ const {authenticate} = require("../middleware/authenticate")
 const{authorize}=require("../middleware/authorize")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const cookie=require("cookie-parser")
+
 const fs = require("fs")
 require('dotenv').config()
-const redis = require("redis")
 
-const client=redis.createClient()
-client.connect()
 
 userRouter.get("/",(req,res)=>{
     res.send("base api endpoint")
@@ -21,24 +18,23 @@ userRouter.get("/",(req,res)=>{
 
 
 ///////////-------------cookies--------------------//
-userRouter.get("/welcome",(req,res)=>{
-    const name =req.cookies.name||""
-    const location =req.cookies.location||""
-    res.send(`Welcome ${name} from ${location}`)
-})
+// userRouter.get("/welcome",(req,res)=>{
+//     const name =req.cookies.name||""
+//     const location =req.cookies.location||""
+//     res.send(`Welcome ${name} from ${location}`)
+// })
 
-userRouter.get("/users",(req,res)=>{
-    res.cookie("name","manthan")
-    res.cookie("location","pune")
-    res.send("welcome userr")
-})
-userRouter.get("/admins",(req,res)=>{
-    res.send("welcome admin")
-})
+// userRouter.get("/users",(req,res)=>{
+//     res.cookie("name","manthan")
+//     res.cookie("location","pune")
+//     res.send("welcome userr")
+// })
+// userRouter.get("/admins",(req,res)=>{
+//     res.send("welcome admin")
+// })
 
 
 ////-----------------/////
-
 
 userRouter.post("/signup",(req,res)=>{
     const {name,email,pass,role} = req.body
@@ -71,9 +67,8 @@ userRouter.post("/login",async(req,res)=>{
                       "secret",
                       { expiresIn: "1d" }
                     );
-                    client.set("counter", token);
 
-                    return res.send({"msg":"Login successfull",token: token,user });
+                    return res.send({"msg":"Login successfull",token: token,user});
                   } catch (error) {
                     return res.send(error.message);
                   }
@@ -104,7 +99,9 @@ res.send("reports..")
 userRouter.get("/logout",(req,res)=>{
 const token = req.headers.authorization
 try {
-    client.LPUSH("black",token)
+    const blacklisteddata = JSON.parse(fs.readFileSync("./blacklist.json", "utf-8"))
+    blacklisteddata.push(token)
+    fs.writeFileSync("./blacklist.json", JSON.stringify(blacklisteddata))
     res.send({"msg":"Logged out successfully"})
 } catch (error) {
     console.log(error)
