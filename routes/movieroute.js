@@ -1,8 +1,8 @@
 const express = require("express")
 const movieRouter = express.Router()
-const {movieModel} = require("../models/moviemodel")
-const {authenticate}=require("../middleware/authenticate")
-const {authorize}=require("../middleware/authorize")
+const {movieModel} = require("../model/moviemodel")
+const {authenticate}=require("../middlewares/authenticate")
+const {authorize}=require("../middlewares/authorize")
 
 
 movieRouter.get("/",async(req,res)=>{
@@ -15,6 +15,20 @@ movieRouter.get("/",async(req,res)=>{
         res.send("somthing went wrong")
     }
 })
+
+// movieRouter.get("/:id",async(req,res)=>{
+//     let _id = req.params.id
+//     try {
+//         const movie = await movieModel.findById({_id:_id})
+//         res.send(movie)
+//     } catch (error) {
+//         console.log(error)
+//         res.send("somthing went wrong")
+//     }
+// })
+
+
+
 
 movieRouter.get("/display", async (req, res) => {
 	try {

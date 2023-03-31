@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <link rel="stylesheet" href="/frontend/review.html">
     <title>IMDB</title>
     <style>
-      body {
+     body {
         background-color: black;
       }
       #nav {
@@ -31,7 +34,7 @@
       }
       #movies {
         display: grid;
-        grid-template-columns: repeat(2, 2fr);
+        grid-template-columns: repeat(2,2fr);
         grid-gap: 20px;
         width: 70%;
         margin: auto;
@@ -281,7 +284,12 @@
 </html>
 <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="/frontend/js/client.js"></script>
+
 <script>
+
+
+
   //  async function moviesshow(){
   //     try {
   //         let movies = await fetch("http://localhost:4500/movie/",{
@@ -310,7 +318,7 @@
   async function getmovies(newValue) {
     try {
       let movies = await fetch(
-        `http://localhost:5500/movies/display?genre=${newValue}`,
+        `https://rich-gray-stingray-garb.cyclic.app/movie/display?genre=${newValue}`,
         {
           method: "GET",
           headers: {
@@ -326,7 +334,7 @@
         } else {
           async function secondfetch(page) {
             let amovies = await fetch(
-              `http://localhost:5500/movies/display?page=${page}`,
+              `https://rich-gray-stingray-garb.cyclic.app/movie/display?page=${page}`,
               {
                 method: "GET",
                 headers: {
@@ -358,6 +366,7 @@
     }
   }
   getmovies();
+
 
 
   
@@ -397,13 +406,25 @@
         <p>  Genre:  ${item.genre}</p>
         <p> Release year:  ${item.year}</p>
         <p>  Rating:  ${item.rating}</p>
-        <button class="btn">Watch Now</button>
-        
+        <button data-id=${item.name} onclick="clicking()" class="btn">Watch Now</button>
     </div>
     `;
     });
     maincontainer.innerHTML = newarr.join(" ");
   }
+
+
+// function clicking(){
+//   console.log(event.target.dataset.id)
+// }
+
+
+function clicking(){
+  let id=event.target.dataset.id
+  localStorage.setItem("moviename",id)
+  window.location.href="review.html"
+  }
+
 
   function mysearch(){
     let data = document.querySelector("#ser").value
@@ -422,7 +443,7 @@
     async function logoutfun(event){
       try {
        event.preventDefault()
-        let logfun = await fetch("http://localhost:5500/users/logout",{
+        let logfun = await fetch("https://rich-gray-stingray-garb.cyclic.app/user/logout",{
         method:"GET",
         headers:{
           "Content-type":"application/json",
@@ -439,6 +460,5 @@
       }
     }
   
-    
 
 </script>
