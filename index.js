@@ -13,6 +13,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 var cookieParser = require('cookie-parser')
 
+app.use(cors());
 const redis = require("redis")
 const client=redis.createClient()
 
@@ -32,27 +33,26 @@ const server = app.listen(process.env.port,async()=>{
     }
 })
 
-io= require("socket.io")(server)
+// io= require("socket.io")(server)
 
 
-app.use(cookieParser())
+// app.use(cookieParser())
 
-io.on("connection",(socket)=>{
-    console.log("client connected")
+// io.on("connection",(socket)=>{
+//     console.log("client connected")
    
- socket.on("comment",(data)=>{
-    data.time = Date()
-    socket.broadcast.emit("comment",data)
- })
+//  socket.on("comment",(data)=>{
+//     data.time = Date()
+//     socket.broadcast.emit("comment",data)
+//  })
 
- socket.on("typing",(data)=>{
-    socket.broadcast.emit("typing",data)
- })
-})
+//  socket.on("typing",(data)=>{
+//     socket.broadcast.emit("typing",data)
+//  })
+// })
 
 
 
-app.use(cors());
 
 app.use(express.json())
 
