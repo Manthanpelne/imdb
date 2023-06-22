@@ -33,23 +33,23 @@ const server = app.listen(process.env.port,async()=>{
     }
 })
 
-// io= require("socket.io")(server)
+io= require("socket.io")(server)
 
 
-// app.use(cookieParser())
+app.use(cookieParser())
 
-// io.on("connection",(socket)=>{
-//     console.log("client connected")
+io.on("connection",(socket)=>{
+    console.log("client connected")
    
-//  socket.on("comment",(data)=>{
-//     data.time = Date()
-//     socket.broadcast.emit("comment",data)
-//  })
+ socket.on("comment",(data)=>{
+    data.time = Date()
+    socket.broadcast.emit("comment",data)
+ })
 
-//  socket.on("typing",(data)=>{
-//     socket.broadcast.emit("typing",data)
-//  })
-// })
+ socket.on("typing",(data)=>{
+    socket.broadcast.emit("typing",data)
+ })
+})
 
 
 

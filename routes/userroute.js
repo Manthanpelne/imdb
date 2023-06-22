@@ -10,6 +10,8 @@ const fs = require("fs")
 const redis = require("redis")
 const client=redis.createClient()
 const otp = require("generate-otp")
+const cookieParser = require("cookie-parser")
+const nodemailer = require("nodemailer")
 
 
 
@@ -60,25 +62,101 @@ userRouter.get("/reports",authenticate,authorize("customer"),(req,res)=>{
 ////-----------------/////
 
 
-userRouter.post("/signup",(req,res)=>{
+userRouter.post("/signup",async(req,res)=>{
     try {
-        const {name,email,pass,otp,role} = req.body
-        bcrypt.hash(pass, 5, async function(err, hash) {
-            const user = new usermodel({
-                name:name,
-                email:email,
-                pass:hash,
-                otp,
-                role
-            })
-            await user.save()
-            res.send({"msg":"registration successfull"})
-            console.log(user)
-        });
+        const {email} = req.body
+        res.cookie("validmail",email)
+        const user = await usermodel.findOne({email})
+        if(user){
+         return res.status(400).send({"msg":"User already Registered. Please login to continue"})
+        }
+       
+            if(!email){
+                return res.status(400).send({"msg":"Please enter Email"})
+            }else{
+    
+                const generateOtp = otp.generate(4)
+                client.LPUSH("otp",generateOtp.toString())
+                let mailTransporter = nodemailer.createTransport({
+                    service:"gmail",
+                    auth:{
+                        user:"manthanpelneoo7@gmail.com",
+                        pass:process.env.pass
+                    }
+                })
+                let details = {
+                    from:"manthanpelneoo7@gmail.com",
+                    to:`${email}`,
+                    subject:"Verify Email using OTP",
+                    text:"Validate Email:",
+                    html:`<p>Verify your Email using OTP: <h2>${generateOtp}</h2></p>`
+                }
+    
+                mailTransporter.sendMail(details,(err)=>{
+                    if(err){
+                        console.log("It has an error",err)
+                    }else{
+                        console.log("email has sent")
+                    }
+                })
+                res.send({"msg":"OTP sent successfully!!",generateOtp})
+            }
+        
     } catch (error) {
         console.log(error)
     }
 })
+
+
+userRouter.post("/verifyotp",async(req,res)=>{
+    const {name,email,otp,pass,role} = req.body
+    try {
+        let result = await client.lRange('otp',0,99999999)
+       
+        if(!otp){
+            return res.status(400).send({"msg":"Please insert OTP to verify your Email !!"})
+        }
+        if(otp!==result[0]){
+         return res.status(400).send("Invalid OTP !!")
+        }
+
+    } catch (error) {
+        console.log(error.message)
+    }
+    bcrypt.hash(pass, 5, async function(err, hash) {
+        const user = new usermodel({
+            name:name,
+            email:email,
+            pass:hash,
+            role
+        })
+        await user.save()
+    res.send({"msg":"User registered successfully!"})
+    })
+})
+
+
+userRouter.get("/users",async(req,res)=>{
+    try {
+       const user = await usermodel.find()
+       res.send(user) 
+    } catch (error) {
+        console.log(error.message)
+    }
+})
+
+userRouter.delete("/delete/:id",async(req,res)=>{
+    const id = req.params.id
+    try {
+    await usermodel.findByIdAndDelete({_id:id})
+    res.send("deleted user data")
+    
+    } catch (error) {
+        console.log(error)
+        res.send("somthing went wrong")
+    }
+})
+
 
 userRouter.post("/login", async (req, res) => {
     const {email, pass} = req.body;
@@ -91,8 +169,8 @@ userRouter.post("/login", async (req, res) => {
     const hashedpwd = user?.pass
     bcrypt.compare(pass, hashedpwd, function(err, result) {
         if(result){
-            const token = jwt.sign({userID : user._id, role : user.role}, process.env.secretkey, {expiresIn : "3m"})
-            const refresh_token = jwt.sign({userID : user._id, role:user.role}, process.env.secondkey, {expiresIn : "5m"})
+            const token = jwt.sign({userID : user._id, role : user.role}, process.env.secretkey, {expiresIn : "180m"})
+            const refresh_token = jwt.sign({userID : user._id, role:user.role}, process.env.secondkey, {expiresIn : "636m"})
             res.send({msg : "login successfull", token, user, refresh_token})
         }
         else{
@@ -108,10 +186,9 @@ userRouter.post("/login", async (req, res) => {
 userRouter.get("/logout",(req,res)=>{
 const token = req.headers.authorization
 try {
-    client.LPUSH("black",token)
-    // const blacklisteddata = JSON.parse(fs.readFileSync("./blacklist.json", "utf-8"))
-    // blacklisteddata.push(token)
-    // fs.writeFileSync("./blacklist.json", JSON.stringify(blacklisteddata))
+    //client.LPUSH("black",token)
+    res.cookie("blacklist",token)
+   
     res.send({"msg":"Logged out successfully"})
 } catch (error) {
     console.log(error)
@@ -141,59 +218,49 @@ userRouter.get("/getnewtoken",(req,res)=>{
 
 //Email verificafion using OTP 
 
-userRouter.post("/getotp",async(req,res)=>{
-    try {
-        const {email} = req.body
-        if(!email){
-            return res.status(400).send({"msg":"Enter Email first!"})
-        }
-        const mail = await usermodel.findOne({email})
-        if(!mail){
-            return res.status(400).send({"msg":"User not found, please register again."})
-        }else{
+// userRouter.post("/getotp",async(req,res)=>{
+//     try {
+//         const {email} = req.body
+//         if(!email){
+//             return res.status(400).send({"msg":"Enter Email first!"})
+//         }
+//         const mail = await usermodel.findOne({email})
+//         if(!mail){
+//             return res.status(400).send({"msg":"User not found, please register again."})
+//         }else{
 
-            const generateOtp = otp.generate(4)
-            client.LPUSH("otp",generateOtp.toString())
-            const msg = {
-                to:`${mail.email}`,
-                from:"manthanpelneoo7@gmail.com",
-                subject:"Email Verification",
-                text:"Email Verification",
-                html: `<p>Verify your email using OTP: <h1>${generateOtp}</h1></p>`,
-            }
-            sendgrid
-              .send(msg)
-              .then(() => {}, error => {
-                console.error(error);
-            
-                if (error.response) {
-                  console.error(error.response.body)
-                }
-              });
-            res.send({"msg":"OTP sent successfully!!",generateOtp})
-        }
-    } catch (error) {
-        console.log(error.message)
-    }
-})
+//             const generateOtp = otp.generate(4)
+//             client.LPUSH("otp",generateOtp.toString())
+//             let mailTransporter = nodemailer.createTransport({
+//                 service:"gmail",
+//                 auth:{
+//                     user:"manthanpelneoo7@gmail.com",
+//                     pass:process.env.pass
+//                 }
+//             })
+//             let details = {
+//                 from:"manthanpelneoo7@gmail.com",
+//                 to:`${mail.email}`,
+//                 subject:"Verify Email using OTP",
+//                 text:"Validate Email:",
+//                 html:`<p>Verify your Email using OTP: <h2>${generateOtp}</h2></p>`
+//             }
+
+//             mailTransporter.sendMail(details,(err)=>{
+//                 if(err){
+//                     console.log("It has an error",err)
+//                 }else{
+//                     console.log("email has sent")
+//                 }
+//             })
+//             res.send({"msg":"OTP sent successfully!!",generateOtp})
+//         }
+//     } catch (error) {
+//         console.log(error.message)
+//     }
+// })
 
 
-userRouter.post("/verifyotp",async(req,res)=>{
-    try {
-        let otp = req.body.otp
-        let result = await client.lRange('otp',0,99999999)
-        
-        if(!otp){
-            return res.status(400).send({"msg":"Please insert OTP to verify your Email !!"})
-        }
-        if(otp!==result[0]){
-         return res.status(400).send("Invalid OTP !!")
-        }
 
-    } catch (error) {
-        console.log(error.message)
-    }
-    res.send({"msg":"Email successfully verified..!!"})
-})
 
 module.exports = {userRouter}

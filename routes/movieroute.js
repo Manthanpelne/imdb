@@ -3,6 +3,8 @@ const movieRouter = express.Router()
 const {movieModel} = require("../model/moviemodel")
 const {authenticate}=require("../middlewares/authenticate")
 const {authorize}=require("../middlewares/authorize")
+const { usermodel } = require("../model/usermodel")
+const jwt = require("jsonwebtoken")
 
 
 movieRouter.get("/",async(req,res)=>{
@@ -106,6 +108,17 @@ movieRouter.post("/add",authenticate,authorize("admin"), async(req,res)=>{
 })
 
 
+// movieRouter.post("/add",async(req,res)=>{
+// 	const token = req.headers.authorization
+// 	jwt.verify(token, process.env.secretKey, async (err, decoded) => {
+// 	if (decoded) {
+// 		req.body.user = decoded.userID;
+// 		req.user = await usermodel.find({ _id: decoded.userID });
+// 		const userID = req.user[0]._id;
+// 		res.send(req.user)
+// 	}
+// })
+// })
 
 movieRouter.patch("/edit/:id",authenticate,authorize("admin"), async(req,res)=>{
     let id = req.params.id
