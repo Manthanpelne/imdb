@@ -7,16 +7,17 @@ const{authorize}=require("../middlewares/authorize")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const fs = require("fs")
-const redis = require("redis")
-const client=redis.createClient()
+const {createClient} = require("redis")
+const client=createClient(process.env.redisurl)
+
+
+client.on("error",(err)=>console.log("Redis client error",err))
+client.connect()
 const otp = require("generate-otp")
 const cookieParser = require("cookie-parser")
 const nodemailer = require("nodemailer")
 
 
-
-client.on("error",(err)=>console.log("Redis client error",err))
-client.connect()
 
 
 

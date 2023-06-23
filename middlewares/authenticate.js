@@ -1,13 +1,13 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-const redis = require("redis")
-const client=redis.createClient()
-const cookieParser = require("cookie-parser")
+const {createClient} = require("redis")
+const client=createClient(process.env.redisurl)
 
 
 client.on("error",(err)=>console.log("Redis client error",err))
 client.connect()
+const cookieParser = require("cookie-parser")
 
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization;

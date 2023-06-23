@@ -14,8 +14,8 @@ const jwt = require("jsonwebtoken")
 var cookieParser = require('cookie-parser')
 
 app.use(cors());
-const redis = require("redis")
-const client=redis.createClient()
+const {createClient} = require("redis")
+const client=createClient(process.env.redisurl)
 
 
 client.on("error",(err)=>console.log("Redis client error",err))

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.socket.io/3.1.3/socket.io.min.js" integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <link rel="stylesheet" href="/frontend/review.html">
+    <title>IMDB</title>
+    <style>
+     body {
+        background-color: black;
+      }
+      #nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 60%;
+        background-color: rgb(123, 115, 101);
+      }
+
+      #nav h1 {
+        color: rgb(219, 219, 140);
+        font-size: 50px;
+      }
+      #ser {
+        border: 2px solid rgb(83, 212, 234);
+        font-size: 15px;
+        background-color: black;
+        color: white;
+        height: 40px;
+        width: 300px;
+      }
+      #movies {
+        display: grid;
+        grid-template-columns: repeat(2,2fr);
+        grid-gap: 20px;
+        width: 70%;
+        margin: auto;
+        margin-top: 50px;
+        color: rgb(218, 216, 220);
+      }
+
+      #movies > div {
+        height: 600px;
+        text-align: center;
+        border: 1px solid grey;
+        width: 400px;
+        margin: auto;
+      }
+
+      #movies > div img {
+        margin-top: 15px;
+        width: 70%;
+        height: 350px;
+      }
+
+      .cards p {
+        font-size: 20px;
+      }
+
+      #mid {
+        width: 100%;
+        display: flex;
+      }
+
+      #fill {
+        width: 300px;
+        height: 700px;
+        margin-top: 50px;
+        border: 1px solid rgb(92, 92, 92);
+        color: rgb(182, 179, 179);
+        font-family: sans-serif;
+        font-weight: lighter;
+      }
+      #fill h2{
+        color: rgb(109, 108, 108);
+        padding-left: 20px;
+      }
+
+      #movies h3 {
+        color: rgb(131, 114, 151);
+        font-family: sans-serif;
+      }
+
+      #login{
+        width: 100px;
+        border-radius: 10px;
+        height:40px;
+        font-weight: bolder;
+        cursor: pointer;
+        background-color: rgb(81, 67, 50);
+        color: rgb(210, 205, 205);
+      }
+      #logout{
+        width: 100px;
+        border-radius: 10px;
+        height:40px;
+        font-weight: bolder;
+        background-color: rgb(81, 67, 50);
+        cursor: pointer;
+        color: rgb(210, 205, 205);
+      }
+
+      .one {
+        text-align: center;
+        width: 200px;
+        font-size: 22px;
+        border: 1px solid rgb(142, 140, 138);
+        height: 40px;
+        margin: 20px;
+        padding-top: 10px;
+        background: linear-gradient(rgb(22, 1, 23), rgb(62, 8, 62));
+      }
+
+      .btn {
+        width: 120px;
+        background-color: rgb(73, 47, 73);
+        color: white;
+        border: none;
+        height: 35px;
+        cursor: pointer;
+      }
+
+      #pagination {
+        margin: 50px;
+        margin-top: 50px;
+        display: flex;
+        margin-left: 40%;
+        width: 300px;
+        justify-content: space-evenly;
+      }
+      #pagination button {
+        font-weight: bold;
+        font-size: 20px;
+        color: white;
+        background-color: rgb(81, 47, 81);
+        width: 70px;
+        height: 40px;
+        cursor: pointer;
+      }
+
+      #pagination button:hover {
+        background-color: rgb(155, 70, 234);
+      }
+
+
+      .mycheck{
+        width:30px;
+        margin-left: 40px;
+        margin-top: 30px;
+      } 
+
+      #fill label{
+       font-size: 20px;
+      }
+   
+      #submit{
+        width: 100px;
+        height: 30px;
+        cursor: pointer;
+      }
+
+      #signup{
+        width: 100px;
+        border-radius: 10px;
+        height:40px;
+        font-weight: bolder;
+        background-color: rgb(81, 67, 50);
+        color: rgb(210, 205, 205);
+        cursor: pointer;
+      }
+      
+ #loginame{
+
+  width: 140px;
+  color: rgb(39, 37, 37);
+  height:40px;
+  font-size: 20px;
+  font-family: sans-serif;
+  border: 1px solid black;
+  padding-top: 13px;
+  padding-left: 14px;
+  
+ }
+ .use{
+  font-size: 50px;
+ }
+      form {
+        color: white;
+      }
+
+      #bignav{
+        display: flex;
+        justify-content: space-between;
+        background-color: rgb(123, 115, 101);
+      }
+      #nav2{
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        width: 420px;
+        justify-content: space-evenly;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bignav">
+      <div id="nav">
+        <a href="signup.html"><button id="signup">SIGN UP</button></a>
+        <div><h1>IMDB</h1></div>
+        <div>
+          <form id="form" action="">
+            <input id="ser" placeholder="Search Movies"  Oninput="mysearch()" type="Search"/>
+          </form>
+        </div>
+      
+      </div>
+      <div id="nav2">
+        <div id="loginame">
+        </div>
+        <label class="use" for=""><ion-icon name="person-outline"></ion-icon></label>
+        <div>
+          <a href="login.html"><button id="login">Login</button></a><br>
+          <button id="logout">Logout</button>
+        </div>
+      </div>
+    </div>
+
+   
+
+    <div id="mid">
+      <form id="fill">
+        <h2>SORT BY GENRE</h2>
+        <input type="checkbox" class="mycheck" id="dr" value="Drama" /><label
+          for="genre"
+          >Drama</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ac" value="Action" /><label
+          for="genre"
+          >Action</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Romance" /><label
+          for="genre"
+          >Romance</label
+        ><br />
+        <input
+          type="checkbox"
+          class="mycheck"
+          id="ro"
+          value="Adventure"
+        /><label for="genre">Adventure</label><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Comedy" /><label
+          for="genre"
+          >Comedy</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Family" /><label
+          for="genre"
+          >Family</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Thriller" /><label
+          for="genre"
+          >Thriller</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Sci-fi" /><label
+          for="genre"
+          >Sci-fi</label
+        ><br />
+        <input type="checkbox" class="mycheck" id="ro" value="Fantasy" /><label
+          for="genre"
+          >Fantasy</label
+        >
+      </form>
+      <div id="movies"></div>
+    </div>
+
+    <div id="pagination">
+      <div><button id="button" data-id="1">1</button></div>
+      <div><button id="button" data-id="2">2</button></div>
+      <div><button id="button" data-id="3">3</button></div>
+    </div>
+  </body>
+</html>
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="/frontend/js/client.js"></script>
+
+<script>
+
+
+
+  //  async function moviesshow(){
+  //     try {
+  //         let movies = await fetch("http://localhost:4500/movie/",{
+  //         method:"GET",
+  //         headers:{
+  //             "Content-type":"application/json",
+  //         }
+  //         })
+  //         console.log(movies)
+  //         if(movies.ok==true){
+  //             let newmovie = await movies.json()
+  //             renderdata(newmovie)
+  //         }
+
+  //     } catch (error) {
+  //         console.log(error)
+  //     }
+  // }
+  // moviesshow()
+
+
+  
+         
+    let arr=[]
+
+  async function getmovies(newValue) {
+    try {
+      let movies = await fetch(
+        `http://localhost:4500/movie/display?genre=${newValue}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+          },
+        }
+      );
+      if (movies.ok) {
+        let moviearray = await movies.json();
+        let allmovies = moviearray.movies;
+        if (allmovies.length != 0) {
+          renderdata(allmovies);
+        } else {
+          async function secondfetch(page) {
+            let amovies = await fetch(
+              `http://localhost:4500/movie/display?page=${page}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-type": "application/json",
+                },
+              }
+            );
+            if (amovies.ok == true) {
+              let all = await amovies.json();
+              renderdata(all.movies);
+              arr.push(all.movies)
+            }
+          }
+           
+        //---------------pagination----------------//
+          let btn = document.querySelectorAll("#button");
+          for (let but of btn) {
+            but.addEventListener("click", (event) => {
+              let page = event.target.dataset.id;
+              secondfetch(page);
+            });
+          }
+
+          secondfetch();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  getmovies();
+
+
+
+  
+  ///////------------filtersss----------------////
+
+  let checked = document.querySelectorAll(".mycheck");
+  for (let check of checked) {
+    check.addEventListener("click", function () {
+      if (this.checked == true) {
+        var newValue = this.value;
+        getmovies(newValue);
+      }
+    });
+  }
+
+  /////-----login-name-----////////////
+
+  let logname = localStorage.getItem("name")
+
+  let v = document.querySelector("#loginame")
+  if(logname==null){
+    v.innerHTML=""
+  }else{
+    v.innerHTML=`${logname}`
+  }
+/////------------------------------///////////
+
+  function renderdata(allmovies) {
+    let maincontainer = document.querySelector("#movies");
+    maincontainer.innerHTML = "";
+
+    let newarr = allmovies.map((item) => {
+      return `
+    <div class="cards">
+
+        <img src="${item.img}"> 
+        <h3> Movie: ${item.name}</h3> 
+        <p>  Genre:  ${item.genre}</p>
+        <p> Release year:  ${item.year}</p>
+        <p>  Rating:  ${item.rating}</p>
+        <button data-id=${item.name} onclick="clicking()" class="btn">Review</button>
+    </div>
+    `;
+    });
+    maincontainer.innerHTML = newarr.join(" ");
+  }
+
+
+// function clicking(){
+//   console.log(event.target.dataset.id)
+// }
+
+
+function clicking(){
+  let id=event.target.dataset.id
+  localStorage.setItem("moviename",id)
+  window.location.href="review.html"
+ 
+  }
+
+
+  function mysearch(){
+    let data = document.querySelector("#ser").value
+    for(let i=0;i<arr.length;i++){
+        let newdata = arr[i].filter(function(ele){
+        return ele.name.toLowerCase().includes(data.toLocaleLowerCase());
+    })
+    renderdata(newdata)
+  }
+    }
+
+  
+    let log = document.querySelector("#logout")
+    log.addEventListener("click",logoutfun)
+   
+    async function logoutfun(event){
+      try {
+       event.preventDefault()
+        let logfun = await fetch("http://localhost:4500/user/logout",{
+        method:"GET",
+        headers:{
+          "Content-type":"application/json",
+          Authorization: localStorage.getItem("token"),
+        }
+        })
+       if(logfun.ok){
+        localStorage.removeItem("name");
+        alert("logout successfull")
+        window.location.href = "index.html"
+       }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  
+
+</script>
+
