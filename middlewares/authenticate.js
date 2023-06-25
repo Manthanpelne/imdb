@@ -1,20 +1,26 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-const {createClient} = require("redis")
-const client=createClient(process.env.redisurl)
+const {LogoutModel} = require("../model/logoutModel")
 
 
-client.on("error",(err)=>console.log("Redis client error",err))
-client.connect()
+// const {createClient} = require("redis")
+// const client=createClient(process.env.redisurl)
+// client.on("error",(err)=>console.log("Redis client error",err))
+// client.connect()
+
+
 const cookieParser = require("cookie-parser")
 
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization;
-
+  
   if (!token) {
-    res.send("login again");
-    return;
+    return res.status(400).send({"msg":"Login first"})
+  }
+  const logoutToken = await LogoutModel.find({token})
+  if(logoutToken.length!=0){
+    return res.status(400).send({"msg":"You are not logged in"})
   }
   // const blacklisteddata = JSON.parse(
   //   fs.readFileSync("./blacklist.json", "utf-8")

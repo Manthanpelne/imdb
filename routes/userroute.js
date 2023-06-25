@@ -2,17 +2,26 @@ const express = require("express")
 const userRouter = express.Router()
 require('dotenv').config()
 const {usermodel } = require("../model/usermodel");
+const {LogoutModel} = require("../model/logoutModel")
 const {authenticate} = require("../middlewares/authenticate")
 const{authorize}=require("../middlewares/authorize")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const fs = require("fs")
-const {createClient} = require("redis")
-const client=createClient(process.env.redisurl)
 
 
+const { createClient } = require('redis');
+const client = createClient({
+    password: `${process.env.REDIS_PASSWORD}`,
+    socket: {
+        host: `${process.env.REDISURL}`,
+        port: `${process.env.REDIS_PORT}`
+    }
+});
 client.on("error",(err)=>console.log("Redis client error",err))
 client.connect()
+
+
 const otp = require("generate-otp")
 const cookieParser = require("cookie-parser")
 const nodemailer = require("nodemailer")
@@ -163,6 +172,7 @@ userRouter.post("/login", async (req, res) => {
     const {email, pass} = req.body;
 
     const user = await usermodel.findOne({email})
+
     if(!user){
         res.status(400).send("Please signup first")
         return
@@ -184,16 +194,15 @@ userRouter.post("/login", async (req, res) => {
 
 //------blacklisting-----//
 
-userRouter.get("/logout",(req,res)=>{
-const token = req.headers.authorization
-try {
-    //client.LPUSH("black",token)
-    res.cookie("blacklist",token)
-   
-    res.send({"msg":"Logged out successfully"})
-} catch (error) {
-    console.log(error)
-}
+userRouter.get("/logout",async(req,res)=>{
+    try {
+        const token = req.headers.authorization;
+        const newAccessToken = new LogoutModel({ token: token });
+        await newAccessToken.save();
+        res.status(200).send({ msg: "Logout Successfull" });
+      } catch (error) {
+        res.status(400).send({ msg: error.message });
+      }
 })
 
 

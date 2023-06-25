@@ -61,7 +61,7 @@ function appendToDom(data) {
       <p>${data.comment}</p>
       <div class="cardb">
           <div><small>${moment(data.time).format('LT')}</small></div>
-          <div><button data-id=${data._id} onclick="deleting()" class="removebtn">Remove</button></div>
+
       </div>
   </div>
 </div>
@@ -105,24 +105,19 @@ async function syncWithDB(data){
     body:JSON.stringify(data),
     headers:{
       "content-type":"application/json",
-      Authorization:localStorage.getItem("movieID")
+      Authorization:localStorage.getItem("movieID"),
     }
   })
   if(newdata.ok){
     console.log(newdata)
+    swal("Review uploaded!");
+
   }else{
-    setTimeout(()=>{
-      window.location.href="review.html"
-    },1000)
-    console.log(error)
+    alert("something is wrong")
   }
 }
 
 syncWithDB()
-
-
-
-//window.onload = fetchComments
 
 
 
@@ -154,39 +149,38 @@ let newarr = []
 //   }
 // }
 
-function deleting(){
-  var _id=event.target.dataset.id
-  async function deleteReview(){
-  let getdata = await fetch("http://localhost:4500/api/delete",{
-    method:"DELETE",
-    headers:{
-      "content-type":"application/json",
-      Authorization:_id
-    }
-})
-if(getdata.ok){
-  swal({
-    title: "Are you sure?",
-    icon: "warning",
-    buttons: true,
-    dangerMode: true,
-  })
-  .then((willDelete) => {
-    if (willDelete) {
-      swal("Poof! Review has been deleted!", {
-        icon: "success",
-      });
+// function deleting(){
+//   let id=event.target.dataset.id
+// deleteReview(id)
+//   async function deleteReview(id){
+//   let getdata = await fetch(`http://localhost:4500/api/delete/${id}`,{
+//     method:"DELETE",
+//     headers:{
+//       "content-type":"application/json",
+//     }
+// })
+// if(getdata.ok){
+//   swal({
+//     title: "Are you sure?",
+//     icon: "warning",
+//     buttons: true,
+//     dangerMode: true,
+//   })
+//   .then((willDelete) => {
+//     if (willDelete) {
+//       swal("Poof! Review has been deleted!", {
+//         icon: "success",
+//       });
 
-      setTimeout(()=>{
-        window.location.href="review.html"
-      },2500)
-    } else {
-      swal("Your review is safe!");
-    }
-  });
-}else{
-  console.log(err.message)
-}
-  }
-  deleteReview()
-}
+//       setTimeout(()=>{
+//         window.location.href="review.html"
+//       },2500)
+//     } else {
+//       swal("Your review is safe!");
+//     }
+//   });
+// }else{
+//   console.log(err.message)
+// }
+//   }
+// }

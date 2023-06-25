@@ -181,12 +181,12 @@ async function postmovies(name){
         let newarr=await postingmovie.json()
         pmovie.push(newarr.movies)
         let setid = newarr.movies[0]._id
-    
+        //console.log(newarr.movies[0]._id)
         localStorage.setItem("movieID",setid)
         
         renderdataagain(pmovie[0])
 
-        window.onload = fetchComments
+       
 
 
         async function fetchComments(){

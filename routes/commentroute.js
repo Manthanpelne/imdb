@@ -1,10 +1,11 @@
 const express = require("express");
 const commentRouter = express.Router();
 const { commentModel } = require("../model/commentmodel");
+const {authenticate} = require("../middlewares/authenticate")
 
 const mongoose = require("mongoose")
 
-commentRouter.post("/comment", async (req, res) => {
+commentRouter.post("/comment",async (req, res) => {
   const id = req.headers.authorization
   try {
     const { username, comment } = req.body;
